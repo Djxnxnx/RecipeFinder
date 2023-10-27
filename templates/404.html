@@ -2,18 +2,68 @@
 {% set project = "404" %}
 
 {% block body %}
-    <div class="index">
-        <div class="center-block" style="margin: 2% 10% 10%; font-family: gilroy,serif;">
-            <div class="col-12" style="text-align: center;">
-                <h1><strong>Something Went Wrong</strong></h1>
-            </div>
-
-            <div class="jumbotron jumbotron-fluid" style="text-align: center; ">
-                <h2>Engineering is on the case!</h2>
-                <a href="/">Go Home</a>
-            </div>
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Chatbot Example</title>
+    </head>
+    <body>
+        <div id="chatbox">
+            <!-- Chat messages will appear here -->
         </div>
-    </div>
+        <input type="text" id="userInput" placeholder="Type your message...">
+        <button id="sendMessage">Send</button>
+        <script>
+            const chatbox = document.getElementById('chatbox');
+            const userInput = document.getElementById('userInput');
+            const sendMessageButton = document.getElementById('sendMessage');
+
+            // Your OpenAI GPT-3 API key
+            const apiKey = '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';
+
+            sendMessageButton.addEventListener('click', sendMessage);
+
+            function sendMessage() {
+                const userMessage = userInput.value;
+                if (userMessage.trim() === '') {
+                    return;
+                }
+
+                // Display user message in the chatbox
+                displayMessage(userMessage, 'user');
+
+                // Send the user message to GPT-3 for a response
+                fetch('/send-message-to-gpt3', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ message: userMessage, apiKey: apiKey }),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    const botResponse = data.response;
+                    // Display the bot's response in the chatbox
+                    displayMessage(botResponse, 'bot');
+                })
+                .catch(error => {
+                    console.error('Error sending message:', error);
+                });
+
+                // Clear the input field
+                userInput.value = '';
+            }
+
+            function displayMessage(message, sender) {
+                const messageElement = document.createElement('div');
+                messageElement.classList.add(sender);
+                messageElement.textContent = message;
+                chatbox.appendChild(messageElement);
+            }
+        </script>
+    </body>
+    </html>
+
 {% endblock %}
 
 {% block background %}

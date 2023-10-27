@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Recipe Finder Results</title>
+</head>
+<body>
+    <h1>Recipes</h1>
+    <ul>
+        {% for recipe in recipes %}
+        <li>
+            <strong>{{ recipe['title'] }}</strong>
+            <p>Missing Ingredients: {{ recipe['missedIngredients'] | join(', ') }}</p>
+            <p>Used Ingredients: {{ recipe['usedIngredients'] | join(', ') }}</p>
+            <p>Likes: {{ recipe['likes'] }}</p>
+        </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

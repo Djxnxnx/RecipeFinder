@@ -1,109 +1,98 @@
-<!-- Extending the predefined project layout -->
 {% extends "layouts/base.html" %}
+{% set project = "Home" %}
 
-<!- This variable sets name of browser tab  -->
-{% set project = "Stubby" %}
-
-<!- This is a replacement block for Body in base.html -->
 {% block body %}
-    <!- Try building a new body here, bootstrap is a wise choice ->
-    <div class="px-5 py-5 mx-auto">
-        <table id="demo" class="table">
-            <thead>
-                <tr>
-                    <th>Make</th>
-                    <th>Model</th>
-                    <th>Year</th>
-                    <th>Color</th>
-                    <th>Price</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>Ford</td>
-                    <td>Mustang</td>
-                    <td>2022</td>
-                    <td>Red</td>
-                    <td>$35,000</td>
-                </tr>
-                <tr>
-                    <td>Toyota</td>
-                    <td>Camry</td>
-                    <td>2022</td>
-                    <td>Silver</td>
-                    <td>$25,000</td>
-                </tr>
-                <tr>
-                    <td>Tesla</td>
-                    <td>Model S</td>
-                    <td>2022</td>
-                    <td>White</td>
-                    <td>$80,000</td>
-                </tr>
-                <tr>
-                    <td>Cadillac</td>
-                    <td>Broughan</td>
-                    <td>1969</td>
-                    <td>Black</td>
-                    <td>$10,000</td>
-                </tr>
-                <tr>
-                    <td>Ford</td>
-                    <td>F-350</td>
-                    <td>1997</td>
-                    <td>Green</td>
-                    <td>$15,000</td>
-                </tr>
-                <tr>
-                    <td>Ford</td>
-                    <td>Excursionn</td>
-                    <td>2003</td>
-                    <td>Green</td>
-                    <td>$25,000</td>
-                </tr>
-                <tr>
-                    <td>Ford</td>
-                    <td>Ranger</td>
-                    <td>2012</td>
-                    <td>Red</td>
-                    <td>$8,000</td>
-                </tr>
-                <tr>
-                    <td>Kuboto</td>
-                    <td>L3301 Tractor</td>
-                    <td>2015</td>
-                    <td>Orange</td>
-                    <td>$12,000</td>
-                </tr>
-                <tr>
-                    <td>Ford</td>
-                    <td>Fusion Energi</td>
-                    <td>2015</td>
-                    <td>Green</td>
-                    <td>$15,000</td>
-                </tr>
-                <tr>
-                    <td>Acura</td>
-                    <td>XL</td>
-                    <td>2006</td>
-                    <td>Grey</td>
-                    <td>$10,000</td>
-                </tr>
-                <tr>
-                    <td>Ford</td>
-                    <td>F150 Lightning</td>
-                    <td>2023</td>
-                    <td>Grey</td>
-                    <td>$70,000</td>
-                </tr>
-            </tbody>
-        </table>
-        <script>
-            $("#demo").DataTable();
-        </script>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Recipe Finder</title>
+    <style>
+        body {
+            font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+            margin: 0;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            min-height: 100vh;
+        }
+        #recipeForm {
+            text-align: center;
+            background-color: #f0f0f0;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        #ingredients {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        #results {
+            text-align: center;
+            margin-top: 20px;
+        }
+        h1 {
+            font-size: 36px;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+        h2 {
+            font-size: 24px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Recipe Finder</h1>
+    <form id="recipeForm">
+        <label for="ingredients">Enter ingredients (comma-separated):</label>
+        <input type="text" name="ingredients" id="ingredients" required>
+        <input type="submit" value="Find Recipes">
+    </form>
+    <div>
+        <h2>Results:</h2>
+        <div id="results"></div>
     </div>
-{% endblock %}
-
-<!- This is turning off birds background from base.html -->
-{% block background %}
+    <script>
+        document.getElementById('recipeForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+            const apiKey = '84cfe45628de456c87a13a80b76f5bd8'; // Replace with your Spoonacular API key
+            const ingredients = document.getElementById('ingredients').value;
+            const apiUrl = `https://api.spoonacular.com/recipes/findByIngredients?apiKey=${apiKey}&ingredients=${ingredients}`;
+            fetch(apiUrl)
+                .then(response => response.json())
+                .then(data => {
+                    const resultsList = document.getElementById('results');
+                    resultsList.innerHTML = ''; // Clear previous results
+                    if (data.length === 0) {
+                        const noResultsItem = document.createElement('li');
+                        noResultsItem.textContent = 'No recipes found for these ingredients.';
+                        resultsList.appendChild(noResultsItem);
+                    } else {
+                        data.forEach(recipe => {
+                            const recipeItem = document.createElement('li');
+                            recipeItem.innerHTML = `<strong>${recipe.title}</strong> (Likes: ${recipe.likes})`;
+                            // Create a list of missing ingredients
+                            const missingIngredients = recipe.missedIngredients.map(ingredient => ingredient.name);
+                            // Create a list of used ingredients
+                            const usedIngredients = recipe.usedIngredients.map(ingredient => ingredient.name);
+                            // Add missing and used ingredients to the list item
+                            recipeItem.innerHTML += `<br>Missing Ingredients: ${missingIngredients.join(', ')}`;
+                            recipeItem.innerHTML += `<br>Used Ingredients: ${usedIngredients.join(', ')}`;
+                            resultsList.appendChild(recipeItem);
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching recipes:', error);
+                });
+        });
+    </script>
+</body>
+</html>
 {% endblock %}
